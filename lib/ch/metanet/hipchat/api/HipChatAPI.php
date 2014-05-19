@@ -3,10 +3,9 @@
 namespace ch\metanet\hipchat\api;
 
 /**
- * Created by PhpStorm.
- * User: pascal
- * Date: 16.05.14
- * Time: 16:07
+ * Wrapper to access REST API of HipChat
+ * @author Pascal Muenst <entwicklung@metanet.ch>
+ * @copyright Copyright (c) 2014, METANET AG
  */
 class HipChatAPI {
 	const DEFAULT_TARGET = 'https://api.hipchat.com';
