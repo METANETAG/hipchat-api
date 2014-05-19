@@ -1,14 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: pascal
- * Date: 16.05.14
- * Time: 16:26
- */
 
 namespace ch\metanet\hipchat\api;
 
-
+/**
+ * Exception for the REST API wrapper for HipChat
+ * @author Pascal Muenst <entwicklung@metanet.ch>
+ * @copyright Copyright (c) 2014, METANET AG
+ */
 class HipChatAPIException extends \Exception {
 
 } 
