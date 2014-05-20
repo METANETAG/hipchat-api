@@ -25,6 +25,7 @@ class HipChatAPI {
 	const EMOTICONS_TYPE_GLOBAL = 'global';
 	const EMOTICONS_TYPE_GROUP = 'group';
 
+	const REQUEST_GET = 'GET';
 	const REQUEST_POST = 'POST';
 	const REQUEST_PUT = 'PUT';
 	const REQUEST_DELETE = 'DELETE';
@@ -234,7 +235,7 @@ class HipChatAPI {
 	 * @throws HipChatAPIException If the request fails (wrong API call, wrong parameters, etc.)
 	 * @return \stdClass|null The JSON object or null
 	 */
-	protected function requestApi($apiMethodString, $requestMethod = self::REQUEST_POST, $jsonBody = null) {
+	protected function requestApi($apiMethodString, $requestMethod = self::REQUEST_GET, $jsonBody = null) {
 		$headers = array(
 			'Authorization: Bearer ' . $this->token
 		);
