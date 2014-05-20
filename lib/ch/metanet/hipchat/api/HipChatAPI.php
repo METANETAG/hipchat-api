@@ -236,6 +236,14 @@ class HipChatAPI {
 	 * @return \stdClass|null The JSON object or null
 	 */
 	protected function requestApi($apiMethodString, $requestMethod = self::REQUEST_GET, $jsonBody = null) {
+		$isPut = false;
+		$customRequest = null;
+
+		if($requestMethod === self::REQUEST_DELETE)
+			$customRequest = self::REQUEST_DELETE;
+		elseif($requestMethod === self::REQUEST_PUT)
+			$isPut = true;
+
 		$headers = array(
 			'Authorization: Bearer ' . $this->token
 		);
@@ -248,7 +256,8 @@ class HipChatAPI {
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => $this->sslVerifyPeer,
 			CURLOPT_HTTPHEADER => $headers,
-			CURLOPT_CUSTOMREQUEST => $requestMethod,
+			CURLOPT_CUSTOMREQUEST => $customRequest,
+			CURLOPT_PUT => $isPut,
 			CURLOPT_POSTFIELDS => $jsonBody
 		));
 
