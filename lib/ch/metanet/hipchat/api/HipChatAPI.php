@@ -230,7 +230,8 @@ class HipChatAPI {
 	 * @param string $apiMethodString The URI string for the API request
 	 * @param string $requestMethod The HTTP method of the request to be sent
 	 * @param string|null $jsonBody A JSON encoded string with data or null
-	 * @throws HipChatAPIException If the request fails (server unavailable, wrong API call, etc.)
+	 * @throws \HttpRuntimeException If the connection to the API server fails
+	 * @throws HipChatAPIException If the request fails (wrong API call, wrong parameters, etc.)
 	 * @return \stdClass|null The JSON object or null
 	 */
 	protected function requestApi($apiMethodString, $requestMethod = self::REQUEST_POST, $jsonBody = null) {
@@ -254,7 +255,7 @@ class HipChatAPI {
 		$curlError = curl_errno($this->apiResource);
 
 		if($curlError != 0)
-			throw new HipChatAPIException('cURL error: ' . curl_error($this->apiResource), $curlError);
+			throw new \HttpRuntimeException('cURL error: ' . curl_error($this->apiResource), $curlError);
 
 		if(strlen($response) === 0)
 			return null;
