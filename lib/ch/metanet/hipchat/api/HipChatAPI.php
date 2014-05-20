@@ -25,10 +25,15 @@ class HipChatAPI {
 	const EMOTICONS_TYPE_GLOBAL = 'global';
 	const EMOTICONS_TYPE_GROUP = 'group';
 
+	const REQUEST_POST = 'POST';
+	const REQUEST_PUT = 'PUT';
+	const REQUEST_DELETE = 'DELETE';
+
 	protected $token;
 	protected $target;
 	protected $apiVersion;
 
+	protected $apiResource;
 	protected $sslVerifyPeer = true;
 
 	/**
@@ -40,6 +45,8 @@ class HipChatAPI {
 		$this->token = $token;
 		$this->target = $target;
 		$this->apiVersion = $apiVersion;
+
+		$this->apiResource = curl_init();
 	}
 
 	/**
@@ -50,7 +57,7 @@ class HipChatAPI {
 	 * @return \stdClass
 	 */
 	public function getAllRooms($startIndex = 0, $maxResults = 100, $inclideArchived = false) {
-		return $this->doRequest('room?start-index=' . $startIndex . '&max-results=' . $maxResults . '&include-archived=' . var_export($inclideArchived, true));
+		return $this->requestApi('room?start-index=' . $startIndex . '&max-results=' . $maxResults . '&include-archived=' . var_export($inclideArchived, true));
 	}
 
 	/**
@@ -59,10 +66,86 @@ class HipChatAPI {
 	 * @return \stdClass
 	 */
 	public function getRoom($roomIdOrName) {
-		return $this->doRequest('room/' . $roomIdOrName);
+		return $this->requestApi('room/' . $roomIdOrName);
 	}
 
+	/**
+	 * Updates a room.
+	 */
 	public function updateRoom() {
+		// TODO implement
+	}
+
+	/**
+	 * Deletes a room and kicks the current participants.
+	 */
+	public function deleteRoom() {
+		// TODO implement
+	}
+
+	/**
+	 * Gets all webhooks for this room
+	 */
+	public function getAllWebhooks() {
+		// TODO implement
+	}
+
+	/**
+	 * Get webhook details.
+	 */
+	public function getWebhook() {
+		// TODO implement
+	}
+
+	/**
+	 * Creates a new webhook.
+	 */
+	public function createWebhook() {
+		// TODO implement
+	}
+
+	/**
+	 * Deletes a webhook.
+	 */
+	public function deleteWebhook() {
+		// TODO implement
+	}
+
+	/**
+	 * Gets all members for this private room
+	 */
+	public function getAllMembers() {
+		// TODO implement
+	}
+
+	/**
+	 * Adds a member to a private room.
+	 */
+	public function addMember($userIdOrEmail, $roomIdOrName) {
+		// TODO implement
+	}
+
+	/**
+	 * Removes a member from a private room.
+	 */
+	public function removeMember($userIdOrEmail, $roomIdOrName) {
+		// TODO implement
+	}
+
+	/**
+	 * Set a room's topic. Useful for displaying statistics, important links, server status, you name it!
+	 */
+	public function setRoomTopic($roomIdOrName, $topic) {
+		// TODO implement
+	}
+
+	/**
+	 * Invite a user to a room. This API can only be called using a user token.
+	 * @param string $userIdOrEmail The id, email address, or mention name (beginning with an '@') of the user to invite.
+	 * @param string $roomIdOrName The id or name of the room.
+	 * @param string $reason The reason to give to the invited user. (Valid length range: 1 - 250)
+	 */
+	public function inviteUser($userIdOrEmail, $roomIdOrName, $reason) {
 		// TODO implement
 	}
 
@@ -79,7 +162,7 @@ class HipChatAPI {
 	 * @return \stdClass
 	 */
 	public function getRoomHistory($roomIdOrName, $date = 'recent', $timezone = 'UTC', $startIndex = 0, $maxResults = 100, $reverse = true) {
-		return $this->doRequest(
+		return $this->requestApi(
 			'room/' . $roomIdOrName . '/history?date=' . $date .
 			'&timezone=' . $timezone .
 			'&start-index=' . $startIndex .
@@ -106,7 +189,7 @@ class HipChatAPI {
 		$jsonBody->notfiy = $notify;
 		$jsonBody->format = $format;
 
-		$this->doRequest('room/' . $roomIdOrName . '/notification', json_encode($jsonBody));
+		$this->requestApi('room/' . $roomIdOrName . '/notification', self::REQUEST_POST, json_encode($jsonBody));
 	}
 
 	/**
@@ -117,7 +200,7 @@ class HipChatAPI {
 	 * @return \stdClass List of emoticons
 	 */
 	public function getAllEmoticons($startIndex = 0, $maxResults = 100, $type = self::EMOTICONS_TYPE_ALL) {
-		return $this->doRequest(
+		return $this->requestApi(
 			'emoticon?start-index=' . $startIndex .
 			'&max-results=' . $maxResults .
 			'&type=' . $type
@@ -130,7 +213,7 @@ class HipChatAPI {
 	 * @return \stdClass The emoticon object
 	 */
 	public function getEmoticon($emoticonIdOrKey) {
-		return $this->doRequest('emoticon/' . $emoticonIdOrKey);
+		return $this->requestApi('emoticon/' . $emoticonIdOrKey);
 	}
 
 	/**
@@ -139,42 +222,39 @@ class HipChatAPI {
 	 * @return null|\stdClass
 	 */
 	public function getAddOnInstallableData($token, $addOnIdOrKey) {
-		return $this->doRequest('addon/' . $addOnIdOrKey . '/installable/' . $token);
+		return $this->requestApi('addon/' . $addOnIdOrKey . '/installable/' . $token);
 	}
 
 	/**
+	 * Sends a request to the REST API of HipChat and fetches the result of it
 	 * @param string $apiMethodString The URI string for the API request
+	 * @param string $requestMethod The HTTP method of the request to be sent
 	 * @param string|null $jsonBody A JSON encoded string with data or null
+	 * @throws HipChatAPIException If the request fails (server unavailable, wrong API call, etc.)
 	 * @return \stdClass|null The JSON object or null
-	 * @throws HipChatAPIException
 	 */
-	protected function doRequest($apiMethodString, $jsonBody = null) {
-		$ch = curl_init($this->target . '/' . $this->apiVersion . '/' . $apiMethodString);
-
+	protected function requestApi($apiMethodString, $requestMethod = self::REQUEST_POST, $jsonBody = null) {
 		$headers = array(
 			'Authorization: Bearer ' . $this->token
 		);
 
-		if($jsonBody !== null) {
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
+		if($jsonBody !== null)
 			$headers[] = 'Content-Type: application/json';
-		}
 
-		curl_setopt_array($ch, array(
+		curl_setopt_array($this->apiResource, array(
+			CURLOPT_URL => $this->target . '/' . $this->apiVersion . '/' . $apiMethodString,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => $this->sslVerifyPeer,
-			CURLOPT_HTTPHEADER => $headers
+			CURLOPT_HTTPHEADER => $headers,
+			CURLOPT_CUSTOMREQUEST => $requestMethod,
+			CURLOPT_POSTFIELDS => $jsonBody
 		));
 
-		$response = curl_exec($ch);
-		$curlError = curl_errno($ch);
+		$response = curl_exec($this->apiResource);
+		$curlError = curl_errno($this->apiResource);
 
 		if($curlError != 0)
-			throw new HipChatAPIException('cURL error: ' . curl_error($ch), $curlError);
-
-		//$httpStatusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-		curl_close($ch);
+			throw new HipChatAPIException('cURL error: ' . curl_error($this->apiResource), $curlError);
 
 		if(strlen($response) === 0)
 			return null;
@@ -201,6 +281,10 @@ class HipChatAPI {
 	 */
 	public function setSSLVerifyPeer($sslVerifyPeer) {
 		$this->sslVerifyPeer = $sslVerifyPeer;
+	}
+
+	public function __destruct() {
+		curl_close($this->apiResource);
 	}
 }
 
