@@ -29,6 +29,12 @@ class HipChatAPI {
 	const REQUEST_POST = 'POST';
 	const REQUEST_PUT = 'PUT';
 	const REQUEST_DELETE = 'DELETE';
+	
+	const EVENT_ROOM_MESSAGE = 'room_message';
+	const EVENT_ROOM_NOTIFICATION = 'room_notification';
+	const EVENT_ROOM_EXIT = 'room_exit';
+	const EVENT_ROOM_ENTER = 'room_enter';
+	const EVENT_ROOM_TOPIC_CHANGE = 'room_topic_change';
 
 	protected $token;
 	protected $target;
