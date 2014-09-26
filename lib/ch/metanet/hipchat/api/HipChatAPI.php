@@ -86,16 +86,25 @@ class HipChatAPI {
 
 	/**
 	 * Gets all webhooks for this room
+	 * @param string $roomIdOrName
+	 * @throws HipChatAPIException
+	 * @throws \HttpRuntimeException
+	 * @return null|\stdClass
 	 */
-	public function getAllWebhooks() {
-		// TODO implement
+	public function getAllWebhooks($roomIdOrName) {
+		return $this->requestApi('room/' . $roomIdOrName . '/webhook', self::REQUEST_GET);
 	}
 
 	/**
 	 * Get webhook details.
+	 * @param string $roomIdOrName
+	 * @param string $webhookId
+	 * @throws HipChatAPIException
+	 * @throws \HttpRuntimeException
+	 * @return null|\stdClass
 	 */
-	public function getWebhook() {
-		// TODO implement
+	public function getWebhook($roomIdOrName, $webhookId) {
+		return $this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, self::REQUEST_GET);
 	}
 
 	/**
@@ -105,6 +114,7 @@ class HipChatAPI {
 	 * @param string $pattern
 	 * @param string $event
 	 * @param string $name
+	 * @return \stdClass
 	 * @throws HipChatAPIException
 	 * @throws \HttpRuntimeException
 	 */
@@ -116,14 +126,14 @@ class HipChatAPI {
 		$jsonBody->event = $event;
 		$jsonBody->name = $name;
 
-		$this->requestApi('room/' . $roomIdOrName . '/webhook', self::REQUEST_POST, json_encode($jsonBody));
+		return $this->requestApi('room/' . $roomIdOrName . '/webhook', self::REQUEST_POST, json_encode($jsonBody));
 	}
 
 	/**
 	 * Deletes a webhook.
 	 */
-	public function deleteWebhook() {
-		// TODO implement
+	public function deleteWebhook($roomIdOrName, $webhookId) {
+		$this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, self::REQUEST_DELETE);
 	}
 
 	/**
