@@ -100,9 +100,23 @@ class HipChatAPI {
 
 	/**
 	 * Creates a new webhook.
+	 * @param string $roomIdOrName
+	 * @param string $url
+	 * @param string $pattern
+	 * @param string $event
+	 * @param string $name
+	 * @throws HipChatAPIException
+	 * @throws \HttpRuntimeException
 	 */
-	public function createWebhook() {
-		// TODO implement
+	public function createWebhook($roomIdOrName, $url, $pattern, $event, $name) {
+		$jsonBody = new \stdClass();
+
+		$jsonBody->url = $url;
+		$jsonBody->pattern = $pattern;
+		$jsonBody->event = $event;
+		$jsonBody->name = $name;
+
+		$this->requestApi('room/' . $roomIdOrName . '/webhook', self::REQUEST_POST, json_encode($jsonBody));
 	}
 
 	/**
