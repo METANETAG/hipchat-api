@@ -7,7 +7,8 @@ namespace ch\metanet\hipchat\api;
  * @author Pascal Muenst <entwicklung@metanet.ch>
  * @copyright Copyright (c) 2014, METANET AG
  */
-class HipChatAPI {
+class HipChatAPI
+{
 	const DEFAULT_TARGET = 'https://api.hipchat.com';
 	const API_VERSION_2 = 'v2';
 
@@ -48,7 +49,8 @@ class HipChatAPI {
 	 * @param string $target URL to where the HipChat API is located
 	 * @param string $apiVersion Version of the HipChat API that should be used
 	 */
-	public function __construct($token, $target = self::DEFAULT_TARGET, $apiVersion = self::API_VERSION_2) {
+	public function __construct($token, $target = self::DEFAULT_TARGET, $apiVersion = self::API_VERSION_2)
+	{
 		$this->token = $token;
 		$this->target = $target;
 		$this->apiVersion = $apiVersion;
@@ -65,68 +67,82 @@ class HipChatAPI {
 	 * 
 	 * @return \stdClass
 	 */
-	public function getAllRooms($startIndex = 0, $maxResults = 100, $includeArchived = false) {
+	public function getAllRooms($startIndex = 0, $maxResults = 100, $includeArchived = false)
+	{
 		return $this->requestApi('room?start-index=' . $startIndex . '&max-results=' . $maxResults . '&include-archived=' . var_export($includeArchived, true));
 	}
 
 	/**
 	 * Get room details.
+	 * 
 	 * @param string $roomIdOrName The id or name of the room.
+	 * 
 	 * @return \stdClass
 	 */
-	public function getRoom($roomIdOrName) {
+	public function getRoom($roomIdOrName)
+	{
 		return $this->requestApi('room/' . $roomIdOrName);
 	}
 
 	/**
 	 * Updates a room.
 	 */
-	public function updateRoom() {
+	public function updateRoom()
+	{
 		// TODO implement
 	}
 
 	/**
 	 * Deletes a room and kicks the current participants.
 	 */
-	public function deleteRoom() {
+	public function deleteRoom()
+	{
 		// TODO implement
 	}
 
 	/**
 	 * Gets all webhooks for this room
+	 * 
 	 * @param string $roomIdOrName
-	 * @throws HipChatAPIException
-	 * @throws \HttpRuntimeException
 	 * @return null|\stdClass
+	 * 
+	 * @throws HipChatAPIException
 	 */
-	public function getAllWebhooks($roomIdOrName) {
+	public function getAllWebhooks($roomIdOrName)
+	{
 		return $this->requestApi('room/' . $roomIdOrName . '/webhook', self::REQUEST_GET);
 	}
 
 	/**
 	 * Get webhook details.
+	 * 
 	 * @param string $roomIdOrName
 	 * @param string $webhookId
-	 * @throws HipChatAPIException
-	 * @throws \HttpRuntimeException
+	 * 
 	 * @return null|\stdClass
+	 * 
+	 * @throws HipChatAPIException
 	 */
-	public function getWebhook($roomIdOrName, $webhookId) {
+	public function getWebhook($roomIdOrName, $webhookId)
+	{
 		return $this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, self::REQUEST_GET);
 	}
 
 	/**
 	 * Creates a new webhook.
+	 * 
 	 * @param string $roomIdOrName
 	 * @param string $url
 	 * @param string $pattern
 	 * @param string $event
 	 * @param string $name
+	 * 
 	 * @return \stdClass
+	 * 
 	 * @throws HipChatAPIException
-	 * @throws \HttpRuntimeException
 	 */
-	public function createWebhook($roomIdOrName, $url, $pattern, $event, $name) {
+	public function createWebhook($roomIdOrName, $url, $pattern, $event, $name)
+	{
 		$jsonBody = new \stdClass();
 
 		$jsonBody->url = $url;
@@ -139,51 +155,73 @@ class HipChatAPI {
 
 	/**
 	 * Deletes a webhook.
+	 *
+	 * @param string $roomIdOrName
+	 * @param int $webhookId
+	 *
+	 * @throws HipChatAPIException
 	 */
-	public function deleteWebhook($roomIdOrName, $webhookId) {
+	public function deleteWebhook($roomIdOrName, $webhookId)
+	{
 		$this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, self::REQUEST_DELETE);
 	}
 
 	/**
 	 * Gets all members for this private room
 	 */
-	public function getAllMembers() {
+	public function getAllMembers()
+	{
 		// TODO implement
 	}
 
 	/**
 	 * Adds a member to a private room.
+	 *
+	 * @param string $userIdOrEmail
+	 * @param string|int $roomIdOrName
 	 */
-	public function addMember($userIdOrEmail, $roomIdOrName) {
+	public function addMember($userIdOrEmail, $roomIdOrName)
+	{
 		// TODO implement
 	}
 
 	/**
 	 * Removes a member from a private room.
+	 *
+	 * @param string $userIdOrEmail
+	 * @param string|int $roomIdOrName
 	 */
-	public function removeMember($userIdOrEmail, $roomIdOrName) {
+	public function removeMember($userIdOrEmail, $roomIdOrName)
+	{
 		// TODO implement
 	}
 
 	/**
 	 * Set a room's topic. Useful for displaying statistics, important links, server status, you name it!
+	 *
+	 * @param $roomIdOrName
+	 * @param $topic
 	 */
-	public function setRoomTopic($roomIdOrName, $topic) {
+	public function setRoomTopic($roomIdOrName, $topic)
+	{
 		// TODO implement
 	}
 
 	/**
 	 * Invite a user to a room. This API can only be called using a user token.
+	 * 
 	 * @param string $userIdOrEmail The id, email address, or mention name (beginning with an '@') of the user to invite.
 	 * @param string $roomIdOrName The id or name of the room.
 	 * @param string $reason The reason to give to the invited user. (Valid length range: 1 - 250)
 	 */
-	public function inviteUser($userIdOrEmail, $roomIdOrName, $reason) {
+	public function inviteUser($userIdOrEmail, $roomIdOrName, $reason)
+	{
 		// TODO implement
 	}
 
 	/**
 	 * Fetch chat history for a room.
+	 * 
 	 * @param string $roomIdOrName The id or name of the room.
 	 * @param string $date Either the latest date to fetch history for in ISO-8601 format, or 'recent' to fetch the
 	 * latest 75 messages. Note, paging isn't supported for 'recent', however they are real-time values, whereas date
@@ -192,9 +230,11 @@ class HipChatAPI {
 	 * @param int $startIndex The offset for the messages to return. Only valid with a non-recent data query.
 	 * @param int $maxResults The maximum number of messages to return. Only valid with a non-recent data query.
 	 * @param bool $reverse Reverse the output such that the oldest message is first. For consistent paging, set to 'false'.
+	 * 
 	 * @return \stdClass
 	 */
-	public function getRoomHistory($roomIdOrName, $date = 'recent', $timezone = 'UTC', $startIndex = 0, $maxResults = 100, $reverse = true) {
+	public function getRoomHistory($roomIdOrName, $date = 'recent', $timezone = 'UTC', $startIndex = 0, $maxResults = 100, $reverse = true)
+	{
 		return $this->requestApi(
 			'room/' . $roomIdOrName . '/history?date=' . $date .
 			'&timezone=' . $timezone .
@@ -213,7 +253,8 @@ class HipChatAPI {
 	 * (change the tab color, play a sound, etc). Each recipient's notification preferences are taken into account.
 	 * @param string $format Determines how the message is treated by our server and rendered inside HipChat applications.
 	 */
-	public function sendRoomNotification($roomIdOrName, $message, $backgroundColor = self::BACKGROUND_COLOR_YELLOW, $notify = false, $format = self::MESSAGE_FORMAT_TEXT) {
+	public function sendRoomNotification($roomIdOrName, $message, $backgroundColor = self::BACKGROUND_COLOR_YELLOW, $notify = false, $format = self::MESSAGE_FORMAT_TEXT)
+	{
 		$jsonBody = new \stdClass();
 
 		$jsonBody->id_or_name = $roomIdOrName;
@@ -232,7 +273,8 @@ class HipChatAPI {
 	 * @param string $type The type of emoticons to get.
 	 * @return \stdClass List of emoticons
 	 */
-	public function getAllEmoticons($startIndex = 0, $maxResults = 100, $type = self::EMOTICONS_TYPE_ALL) {
+	public function getAllEmoticons($startIndex = 0, $maxResults = 100, $type = self::EMOTICONS_TYPE_ALL)
+	{
 		return $this->requestApi(
 			'emoticon?start-index=' . $startIndex .
 			'&max-results=' . $maxResults .
@@ -242,32 +284,39 @@ class HipChatAPI {
 
 	/**
 	 * Get emoticon details.
+	 * 
 	 * @param string $emoticonIdOrKey The id or shortcut of the emoticon.
+	 * 
 	 * @return \stdClass The emoticon object
 	 */
-	public function getEmoticon($emoticonIdOrKey) {
+	public function getEmoticon($emoticonIdOrKey)
+	{
 		return $this->requestApi('emoticon/' . $emoticonIdOrKey);
 	}
 
 	/**
 	 * @param $token
 	 * @param $addOnIdOrKey
+	 * 
 	 * @return null|\stdClass
 	 */
-	public function getAddOnInstallableData($token, $addOnIdOrKey) {
+	public function getAddOnInstallableData($token, $addOnIdOrKey)
+	{
 		return $this->requestApi('addon/' . $addOnIdOrKey . '/installable/' . $token);
 	}
 
 	/**
 	 * Sends a request to the REST API of HipChat and fetches the result of it
+	 * 
 	 * @param string $apiMethodString The URI string for the API request
 	 * @param string $requestMethod The HTTP method of the request to be sent
 	 * @param string|null $jsonBody A JSON encoded string with data or null
-	 * @throws \HttpRuntimeException If the connection to the API server fails
+	 *
 	 * @throws HipChatAPIException If the request fails (wrong API call, wrong parameters, etc.)
 	 * @return \stdClass|null The JSON object or null
 	 */
-	protected function requestApi($apiMethodString, $requestMethod = self::REQUEST_GET, $jsonBody = null) {
+	protected function requestApi($apiMethodString, $requestMethod = self::REQUEST_GET, $jsonBody = null)
+	{
 		$headers = array(
 			'Authorization: Bearer ' . $this->token
 		);
@@ -288,7 +337,7 @@ class HipChatAPI {
 		$curlError = curl_errno($this->apiResource);
 
 		if($curlError != 0)
-			throw new \HttpRuntimeException('cURL error: ' . curl_error($this->apiResource), $curlError);
+			throw new HipChatAPIException('CURL error: ' . curl_error($this->apiResource), $curlError);
 
 		if(strlen($response) === 0)
 			return null;
@@ -303,21 +352,26 @@ class HipChatAPI {
 
 	/**
 	 * Change the API token
+	 * 
 	 * @param string $token The new token
 	 */
-	public function changeToken($token) {
+	public function changeToken($token)
+	{
 		$this->token = $token;
 	}
 
 	/**
 	 * Deactivate verification of the SSL peer by cURL
+	 * 
 	 * @param bool $sslVerifyPeer
 	 */
-	public function setSSLVerifyPeer($sslVerifyPeer) {
+	public function setSSLVerifyPeer($sslVerifyPeer)
+	{
 		$this->sslVerifyPeer = $sslVerifyPeer;
 	}
 
-	public function __destruct() {
+	public function __destruct()
+	{
 		curl_close($this->apiResource);
 	}
 }
