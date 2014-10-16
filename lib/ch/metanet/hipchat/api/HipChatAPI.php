@@ -58,13 +58,15 @@ class HipChatAPI {
 
 	/**
 	 * List non-archived rooms for this group.
+	 * 
 	 * @param int $startIndex The start index for the result set.
 	 * @param int $maxResults The maximum number of results.
-	 * @param bool $inclideArchived Include archived rooms too
+	 * @param bool $includeArchived Include archived rooms too
+	 * 
 	 * @return \stdClass
 	 */
-	public function getAllRooms($startIndex = 0, $maxResults = 100, $inclideArchived = false) {
-		return $this->requestApi('room?start-index=' . $startIndex . '&max-results=' . $maxResults . '&include-archived=' . var_export($inclideArchived, true));
+	public function getAllRooms($startIndex = 0, $maxResults = 100, $includeArchived = false) {
+		return $this->requestApi('room?start-index=' . $startIndex . '&max-results=' . $maxResults . '&include-archived=' . var_export($includeArchived, true));
 	}
 
 	/**
