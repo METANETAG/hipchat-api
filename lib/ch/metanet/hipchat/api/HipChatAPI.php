@@ -309,7 +309,7 @@ class HipChatAPI
 	 * Sends a request to the REST API of HipChat and fetches the result of it
 	 *
 	 * @param string $apiMethodString The URI string for the API request
-	 * @param int $expectedHttpStatusCode The expected status code for this API request
+	 * @param int $expectedHttpStatusCode The expected HTTP status code for this API request
 	 * @param string $requestMethod The HTTP method of the request to be sent
 	 * @param string|null $jsonBody A JSON encoded string with data or null
 	 *
@@ -322,17 +322,20 @@ class HipChatAPI
 			'Authorization: Bearer ' . $this->token
 		);
 
-		if($jsonBody !== null)
-			$headers[] = 'Content-Type: application/json';
-
 		curl_setopt_array($this->apiResource, array(
 			CURLOPT_URL => $this->target . '/' . $this->apiVersion . '/' . $apiMethodString,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => $this->sslVerifyPeer,
 			CURLOPT_HTTPHEADER => $headers,
-			CURLOPT_CUSTOMREQUEST => $requestMethod,
-			CURLOPT_POSTFIELDS => $jsonBody
+			CURLOPT_CUSTOMREQUEST => $requestMethod
 		));
+
+		if($jsonBody !== null) {
+			curl_setopt($this->apiResource, CURLOPT_POSTFIELDS, $jsonBody);
+			$headers[] = 'Content-Type: application/json';
+		}
+		
+		curl_setopt($this->apiResource, CURLOPT_HTTPHEADER, $headers);
 
 		$response = curl_exec($this->apiResource);
 		$curlError = curl_errno($this->apiResource);
