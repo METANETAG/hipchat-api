@@ -65,7 +65,7 @@ class HipChatAPI
 	 * @param int $maxResults The maximum number of results.
 	 * @param bool $includeArchived Include archived rooms too
 	 * 
-	 * @return \stdClass
+	 * @return bool|\stdClass
 	 */
 	public function getAllRooms($startIndex = 0, $maxResults = 100, $includeArchived = false)
 	{
@@ -77,7 +77,7 @@ class HipChatAPI
 	 * 
 	 * @param string $roomIdOrName The id or name of the room.
 	 * 
-	 * @return \stdClass
+	 * @return bool|\stdClass
 	 */
 	public function getRoom($roomIdOrName)
 	{
@@ -104,7 +104,7 @@ class HipChatAPI
 	 * Gets all webhooks for this room
 	 * 
 	 * @param string $roomIdOrName
-	 * @return null|\stdClass
+	 * @return bool|\stdClass
 	 * 
 	 * @throws HipChatAPIException
 	 */
@@ -119,7 +119,7 @@ class HipChatAPI
 	 * @param string $roomIdOrName
 	 * @param string $webhookId
 	 * 
-	 * @return null|\stdClass
+	 * @return bool|\stdClass
 	 * 
 	 * @throws HipChatAPIException
 	 */
@@ -137,7 +137,7 @@ class HipChatAPI
 	 * @param string $event
 	 * @param string $name
 	 * 
-	 * @return \stdClass
+	 * @return bool|\stdClass
 	 * 
 	 * @throws HipChatAPIException
 	 */
@@ -159,11 +159,12 @@ class HipChatAPI
 	 * @param string $roomIdOrName
 	 * @param int $webhookId
 	 *
+	 * @return bool
 	 * @throws HipChatAPIException
 	 */
 	public function deleteWebhook($roomIdOrName, $webhookId)
 	{
-		$this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, 204, self::REQUEST_DELETE);
+		return $this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, 204, self::REQUEST_DELETE);
 	}
 
 	/**
@@ -231,7 +232,7 @@ class HipChatAPI
 	 * @param int $maxResults The maximum number of messages to return. Only valid with a non-recent data query.
 	 * @param bool $reverse Reverse the output such that the oldest message is first. For consistent paging, set to 'false'.
 	 * 
-	 * @return \stdClass
+	 * @return bool|\stdClass
 	 */
 	public function viewRoomHistory($roomIdOrName, $date = 'recent', $timezone = 'UTC', $startIndex = 0, $maxResults = 100, $reverse = true)
 	{
@@ -246,12 +247,15 @@ class HipChatAPI
 
 	/**
 	 * Send a message to a room.
+	 *
 	 * @param string $roomIdOrName The id or name of the room.
 	 * @param string $backgroundColor Background color for message.
 	 * @param string $message The message body.
 	 * @param bool $notify Whether or not this message should trigger a notification for people in the room
 	 * (change the tab color, play a sound, etc). Each recipient's notification preferences are taken into account.
 	 * @param string $format Determines how the message is treated by our server and rendered inside HipChat applications.
+	 *
+	 * @return bool
 	 */
 	public function sendRoomNotification($roomIdOrName, $message, $backgroundColor = self::BACKGROUND_COLOR_YELLOW, $notify = false, $format = self::MESSAGE_FORMAT_TEXT)
 	{
@@ -263,7 +267,7 @@ class HipChatAPI
 		$jsonBody->notfiy = $notify;
 		$jsonBody->format = $format;
 
-		$this->requestApi('room/' . $roomIdOrName . '/notification', 204, self::REQUEST_POST, json_encode($jsonBody));
+		return $this->requestApi('room/' . $roomIdOrName . '/notification', 204, self::REQUEST_POST, json_encode($jsonBody));
 	}
 
 	/**
@@ -271,7 +275,7 @@ class HipChatAPI
 	 * @param int $startIndex The start index for the result set.
 	 * @param int $maxResults The maximum number of results.
 	 * @param string $type The type of emoticons to get.
-	 * @return \stdClass List of emoticons
+	 * @return bool|\stdClass List of emoticons
 	 */
 	public function getAllEmoticons($startIndex = 0, $maxResults = 100, $type = self::EMOTICONS_TYPE_ALL)
 	{
@@ -298,7 +302,7 @@ class HipChatAPI
 	 * @param $token
 	 * @param $addOnIdOrKey
 	 * 
-	 * @return null|\stdClass
+	 * @return bool|\stdClass
 	 */
 	public function getAddOnInstallableData($token, $addOnIdOrKey)
 	{
@@ -314,7 +318,7 @@ class HipChatAPI
 	 * @param string|null $jsonBody A JSON encoded string with data or null
 	 *
 	 * @throws HipChatAPIException
-	 * @return \stdClass|null The JSON object or null
+	 * @return bool|\stdClass The JSON object or null
 	 */
 	protected function requestApi($apiMethodString, $expectedHttpStatusCode, $requestMethod = self::REQUEST_GET, $jsonBody = null)
 	{
