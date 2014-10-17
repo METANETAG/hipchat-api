@@ -69,7 +69,7 @@ class HipChatAPI
 	 */
 	public function getAllRooms($startIndex = 0, $maxResults = 100, $includeArchived = false)
 	{
-		return $this->requestApi('room?start-index=' . $startIndex . '&max-results=' . $maxResults . '&include-archived=' . var_export($includeArchived, true));
+		return $this->requestApi('room?start-index=' . $startIndex . '&max-results=' . $maxResults . '&include-archived=' . var_export($includeArchived, true), 200);
 	}
 
 	/**
@@ -81,7 +81,7 @@ class HipChatAPI
 	 */
 	public function getRoom($roomIdOrName)
 	{
-		return $this->requestApi('room/' . $roomIdOrName);
+		return $this->requestApi('room/' . $roomIdOrName, 200);
 	}
 
 	/**
@@ -110,7 +110,7 @@ class HipChatAPI
 	 */
 	public function getAllWebhooks($roomIdOrName)
 	{
-		return $this->requestApi('room/' . $roomIdOrName . '/webhook', self::REQUEST_GET);
+		return $this->requestApi('room/' . $roomIdOrName . '/webhook', 200);
 	}
 
 	/**
@@ -125,7 +125,7 @@ class HipChatAPI
 	 */
 	public function getWebhook($roomIdOrName, $webhookId)
 	{
-		return $this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, self::REQUEST_GET);
+		return $this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, 200);
 	}
 
 	/**
@@ -150,7 +150,7 @@ class HipChatAPI
 		$jsonBody->event = $event;
 		$jsonBody->name = $name;
 
-		return $this->requestApi('room/' . $roomIdOrName . '/webhook', self::REQUEST_POST, json_encode($jsonBody));
+		return $this->requestApi('room/' . $roomIdOrName . '/webhook', 201, self::REQUEST_POST, json_encode($jsonBody));
 	}
 
 	/**
@@ -163,7 +163,7 @@ class HipChatAPI
 	 */
 	public function deleteWebhook($roomIdOrName, $webhookId)
 	{
-		$this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, self::REQUEST_DELETE);
+		$this->requestApi('room/' . $roomIdOrName . '/webhook/' . $webhookId, 204, self::REQUEST_DELETE);
 	}
 
 	/**
@@ -233,14 +233,14 @@ class HipChatAPI
 	 * 
 	 * @return \stdClass
 	 */
-	public function getRoomHistory($roomIdOrName, $date = 'recent', $timezone = 'UTC', $startIndex = 0, $maxResults = 100, $reverse = true)
+	public function viewRoomHistory($roomIdOrName, $date = 'recent', $timezone = 'UTC', $startIndex = 0, $maxResults = 100, $reverse = true)
 	{
 		return $this->requestApi(
 			'room/' . $roomIdOrName . '/history?date=' . $date .
 			'&timezone=' . $timezone .
 			'&start-index=' . $startIndex .
 			'&max-results=' . $maxResults .
-			'&reverse=' . var_export($reverse, true)
+			'&reverse=' . var_export($reverse, true), 200
 		);
 	}
 
@@ -263,7 +263,7 @@ class HipChatAPI
 		$jsonBody->notfiy = $notify;
 		$jsonBody->format = $format;
 
-		$this->requestApi('room/' . $roomIdOrName . '/notification', self::REQUEST_POST, json_encode($jsonBody));
+		$this->requestApi('room/' . $roomIdOrName . '/notification', 204, self::REQUEST_POST, json_encode($jsonBody));
 	}
 
 	/**
@@ -278,7 +278,7 @@ class HipChatAPI
 		return $this->requestApi(
 			'emoticon?start-index=' . $startIndex .
 			'&max-results=' . $maxResults .
-			'&type=' . $type
+			'&type=' . $type, 200
 		);
 	}
 
@@ -291,7 +291,7 @@ class HipChatAPI
 	 */
 	public function getEmoticon($emoticonIdOrKey)
 	{
-		return $this->requestApi('emoticon/' . $emoticonIdOrKey);
+		return $this->requestApi('emoticon/' . $emoticonIdOrKey, 200);
 	}
 
 	/**
@@ -302,20 +302,21 @@ class HipChatAPI
 	 */
 	public function getAddOnInstallableData($token, $addOnIdOrKey)
 	{
-		return $this->requestApi('addon/' . $addOnIdOrKey . '/installable/' . $token);
+		return $this->requestApi('addon/' . $addOnIdOrKey . '/installable/' . $token, 200);
 	}
 
 	/**
 	 * Sends a request to the REST API of HipChat and fetches the result of it
-	 * 
+	 *
 	 * @param string $apiMethodString The URI string for the API request
+	 * @param int $expectedHttpStatusCode The expected status code for this API request
 	 * @param string $requestMethod The HTTP method of the request to be sent
 	 * @param string|null $jsonBody A JSON encoded string with data or null
 	 *
-	 * @throws HipChatAPIException If the request fails (wrong API call, wrong parameters, etc.)
+	 * @throws HipChatAPIException
 	 * @return \stdClass|null The JSON object or null
 	 */
-	protected function requestApi($apiMethodString, $requestMethod = self::REQUEST_GET, $jsonBody = null)
+	protected function requestApi($apiMethodString, $expectedHttpStatusCode, $requestMethod = self::REQUEST_GET, $jsonBody = null)
 	{
 		$headers = array(
 			'Authorization: Bearer ' . $this->token
@@ -339,8 +340,13 @@ class HipChatAPI
 		if($curlError != 0)
 			throw new HipChatAPIException('CURL error: ' . curl_error($this->apiResource), $curlError);
 
+		$actualHttpStatusCode = curl_getinfo($this->apiResource, CURLINFO_HTTP_CODE);
+		
+		if($actualHttpStatusCode !== $expectedHttpStatusCode)
+			return false;
+		
 		if(strlen($response) === 0)
-			return null;
+			return true;
 
 		$json = json_decode($response);
 
