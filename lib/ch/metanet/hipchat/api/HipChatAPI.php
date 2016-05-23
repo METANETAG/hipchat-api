@@ -264,7 +264,7 @@ class HipChatAPI
 		$jsonBody->id_or_name = $roomIdOrName;
 		$jsonBody->color = $backgroundColor;
 		$jsonBody->message = $message;
-		$jsonBody->notfiy = $notify;
+		$jsonBody->notify = $notify;
 		$jsonBody->format = $format;
 
 		return $this->requestApi('room/' . $roomIdOrName . '/notification', 204, self::REQUEST_POST, json_encode($jsonBody));
